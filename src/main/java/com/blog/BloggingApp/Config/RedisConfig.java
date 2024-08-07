@@ -9,16 +9,22 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
-    @Bean
-    public RedisTemplate<String, Boolean> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+
+    @Bean(name = "booleanRedisTemplate")
+    public RedisTemplate<String, Boolean> booleanRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Boolean> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
-
-        // Set key serializer to StringRedisSerializer
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        // Use GenericToStringSerializer to serialize Boolean values
         redisTemplate.setValueSerializer(new GenericToStringSerializer<>(Boolean.class));
-
         return redisTemplate;
+    }
+
+    @Bean(name = "objectRedisTemplate")
+    public RedisTemplate<String, Object> objectRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+        return template;
     }
 }
