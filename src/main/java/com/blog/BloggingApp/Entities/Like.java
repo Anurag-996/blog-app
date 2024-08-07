@@ -9,7 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.util.Date;
 
 @Entity
-@Table(name = "like")
+@Table(name = "likes")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
