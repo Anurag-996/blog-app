@@ -36,7 +36,20 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<Object> authenticatedUser() {
         try {
+            // Get the authentication object from the security context
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Check if the user is authenticated
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+            }
+
+            // Ensure the principal is of the expected type
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid user details");
+            }
+
+            // Get the authenticated user's details
             CustomUserDetails currentUserDetails = (CustomUserDetails) authentication.getPrincipal();
             User currentUser = currentUserDetails.getUser();
 
@@ -64,8 +77,20 @@ public class UserController {
     @DeleteMapping("/delete")
     public ResponseEntity<Object> deleteUser(HttpServletRequest request) {
         try {
-            // Get the current authenticated user
+            // Get the authentication object from the security context
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Check if the user is authenticated
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+            }
+
+            // Ensure the principal is of the expected type
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid user details");
+            }
+
+            // Get the authenticated user's details
             CustomUserDetails currentUserDetails = (CustomUserDetails) authentication.getPrincipal();
             Integer userId = currentUserDetails.getUser().getUserId(); // Assuming `getUserId` returns the user ID
 

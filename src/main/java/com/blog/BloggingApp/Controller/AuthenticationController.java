@@ -58,6 +58,27 @@ public class AuthenticationController {
     @PostMapping("/refresh-token")
     public ResponseEntity<Object> refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Ensure the user is authenticated
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+            }
+
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid user details");
+            }
+
+            // Get the authenticated user's details
+            CustomUserDetails currentUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            User user = currentUserDetails.getUser();
+
+            // Validate the refresh token
+            if (user.getRefreshToken() == null
+                    || !user.getRefreshToken().getToken().equals(refreshTokenRequestDTO.getToken())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Token");
+            }
+
             String newAccessToken = refreshTokenService.refreshAccessToken(refreshTokenRequestDTO.getToken(),
                     jwtService);
 
@@ -81,8 +102,20 @@ public class AuthenticationController {
             // Extract the access token from the request header
             String accessToken = jwtService.extractTokenFromHeader(request);
 
-            // Get the current authenticated user
+            // Get the authentication object from the security context
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Check if the user is authenticated
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+            }
+
+            // Ensure the principal is of the expected type
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid user details");
+            }
+
+            // Get the authenticated user's details
             CustomUserDetails currentUserDetails = (CustomUserDetails) authentication.getPrincipal();
             User user = currentUserDetails.getUser(); // Assuming CustomUserDetails has a getUser() method
 
