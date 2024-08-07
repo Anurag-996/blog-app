@@ -1,6 +1,8 @@
 package com.blog.BloggingApp.Config;
 
 import com.blog.BloggingApp.Jwt.JwtAuthenticationFilter;
+import com.blog.BloggingApp.Jwt.JwtConfig;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,13 +16,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final DaoAuthenticationProvider daoAuthenticationProvider;
+    private final JwtConfig jwtConfig;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RedisRateLimitingFilter redisRateLimitingFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, RedisRateLimitingFilter redisRateLimitingFilter,
-            DaoAuthenticationProvider daoAuthenticationProvider) {
-        this.daoAuthenticationProvider = daoAuthenticationProvider;
+    public SecurityConfig(JwtConfig jwtConfig, JwtAuthenticationFilter jwtAuthenticationFilter, RedisRateLimitingFilter redisRateLimitingFilter) {
+        this.jwtConfig = jwtConfig;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.redisRateLimitingFilter = redisRateLimitingFilter;
     }
@@ -42,7 +43,7 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/auth/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID"))
-                .authenticationProvider(daoAuthenticationProvider)
+                .authenticationProvider(jwtConfig.daoAuthenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // Ensure JWT
                                                                                                       // authentication
                                                                                                       // filter is
