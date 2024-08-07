@@ -14,7 +14,7 @@ public class RedisTokenBlacklistRepository {
 
     private final RedisTemplate<String, Boolean> redisTemplate;
 
-    public RedisTokenBlacklistRepository(@Qualifier("booleanRedisTemplate")RedisTemplate<String, Boolean> redisTemplate) {
+    public RedisTokenBlacklistRepository(@Qualifier("booleanRedisTemplate") RedisTemplate<String, Boolean> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

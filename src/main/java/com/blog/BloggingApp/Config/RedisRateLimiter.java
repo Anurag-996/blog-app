@@ -1,5 +1,6 @@
 package com.blog.BloggingApp.Config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
@@ -12,7 +13,7 @@ public class RedisRateLimiter {
     private final int MAX_REQUESTS = 100; // Max requests per time window
     private final Duration TIME_WINDOW = Duration.ofMinutes(1); // Time window duration
 
-    public RedisRateLimiter(RedisTemplate<String, Integer> redisTemplate) {
+    public RedisRateLimiter(@Qualifier("integerRedisTemplate") RedisTemplate<String, Integer> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
