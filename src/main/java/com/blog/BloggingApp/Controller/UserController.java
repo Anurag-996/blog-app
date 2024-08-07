@@ -7,6 +7,8 @@ import com.blog.BloggingApp.ResponseDTOs.PostResponse;
 import com.blog.BloggingApp.ResponseDTOs.UserResponse;
 import com.blog.BloggingApp.Service.PostService;
 import com.blog.BloggingApp.Service.UserService;
+import com.blog.BloggingApp.Transformers.UserTransformer;
+import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,15 +40,7 @@ public class UserController {
             CustomUserDetails currentUserDetails = (CustomUserDetails) authentication.getPrincipal();
             User currentUser = currentUserDetails.getUser();
 
-            UserResponse userResponse = UserResponse.builder()
-                    .userId(currentUser.getUserId())
-                    .userName(currentUser.getUserName())
-                    .emailId(currentUser.getEmailId())
-                    .updatedAt(currentUser.getUpdatedAt())
-                    .createdAt(currentUser.getCreatedAt())
-                    .status(currentUser.getStatus())
-                    .build();
-
+            UserResponse userResponse = UserTransformer.convertToUserResponse(currentUser);
             return ResponseEntity.status(HttpStatus.OK).body(userResponse);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -56,8 +50,12 @@ public class UserController {
     @GetMapping("/getAll")
     public ResponseEntity<Object> findAll() {
         try {
-            List<User> usersList = userService.findAll();
-            return ResponseEntity.status(HttpStatus.OK).body(usersList);
+            // Directly obtain and convert the data
+            List<UserResponse> userResponses = userService.findAll().stream()
+                    .map(UserTransformer::convertToUserResponse)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.status(HttpStatus.OK).body(userResponses);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }

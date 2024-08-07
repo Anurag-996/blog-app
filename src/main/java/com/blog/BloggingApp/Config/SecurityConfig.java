@@ -27,7 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF (replace with your CSRF configuration if needed)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/**","/auth/**","/api/v1/comments/**","/api/v1/likes/**","/api/v1/posts/**").permitAll()
+                        .requestMatchers("/api/v1/users/getAll","/api/v1/comments/{commentId}","/api/v1/posts/{postId}","/api/v1/posts/all","/api/v1/posts/comments/{postId}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
