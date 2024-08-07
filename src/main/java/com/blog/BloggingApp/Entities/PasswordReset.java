@@ -34,9 +34,9 @@ public class PasswordReset {
     @Column(name = "expiry_date")
     private Date expiryDate;
 
-    @Column(name = "is_used",columnDefinition = "TINYINT(1)")
+    @Column(name = "is_used")
     private Boolean used;
-
+    
     @Column(name = "request_ip")
     private String requestIpAddress;
 
