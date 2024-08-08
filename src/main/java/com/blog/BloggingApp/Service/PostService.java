@@ -83,13 +83,12 @@ public class PostService {
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-        // Fetch the posts commented by the user and convert to PostResponse in a single
-        // stream
-        return user.getComments().stream()
-                .map(comment -> comment.getPost())
-                .distinct()
+
+        // Fetch the posts commented by the user from the repository
+        return postRepository.findByCommentsUser(user).stream()
+                .distinct() // Ensure posts are unique
                 .map(PostTransformer::convertToPostResponse) // Convert to PostResponse
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); // Collect into a list
     }
 
     public List<PostResponse> getPostsLikedByUser(User user) {
@@ -98,13 +97,23 @@ public class PostService {
             throw new IllegalArgumentException("User must not be null");
         }
 
-        // Fetch the posts liked by the user and convert to PostResponse in a single
-        // stream
-        return user.getLikes().stream()
-                .map(like -> like.getPost()) // Extract Post from Like
+        // Fetch the posts liked by the user from the repository
+        return postRepository.findByLikesUser(user).stream()
                 .distinct() // Ensure posts are unique
-                .map(PostTransformer::convertToPostResponse) // Convert Post to PostResponse
+                .map(PostTransformer::convertToPostResponse) // Convert to PostResponse
                 .collect(Collectors.toList()); // Collect into a list
+    }
+
+    public List<PostResponse> getPostsCreatedByUser(User user) {
+        // Ensure the User is not null
+        if (user == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
+
+        // Fetch the posts created by the user from the repository
+        return postRepository.findByCreatedBy(user).stream()
+                .map(PostTransformer::convertToPostResponse) // Convert each Post to PostResponse
+                .collect(Collectors.toList()); // Collect results into a List<PostResponse>
     }
 
 }

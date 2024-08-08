@@ -138,6 +138,7 @@ public class UserController {
             User currentUser = currentUserDetails.getUser();
 
             List<PostResponse> postResponses = postService.getPostsCommentedByUser(currentUser);
+
             return ResponseEntity.status(HttpStatus.OK).body(postResponses);
 
         } catch (IllegalArgumentException e) {
@@ -145,6 +146,34 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + e.getMessage());
         } catch (Exception e) {
             // Handle any other exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/posts")
+    public ResponseEntity<Object> getPostsCreatedByAuthenticatedUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+            }
+
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid user details");
+            }
+
+            CustomUserDetails currentUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            User currentUser = currentUserDetails.getUser();
+
+            List<PostResponse> postResponses = postService.getPostsCreatedByUser(currentUser);
+
+            return ResponseEntity.status(HttpStatus.OK).body(postResponses);
+
+        } catch (IllegalArgumentException e) {
+            // Handle cases where the user or data is not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found: " + e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
@@ -166,10 +195,6 @@ public class UserController {
             User currentUser = currentUserDetails.getUser();
 
             List<PostResponse> postResponses = postService.getPostsLikedByUser(currentUser);
-
-            if (postResponses.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No posts liked by user");
-            }
 
             return ResponseEntity.status(HttpStatus.OK).body(postResponses);
 
